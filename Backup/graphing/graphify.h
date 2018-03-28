@@ -1,5 +1,8 @@
-#include "map.h"
+#include "../map.h"
 #include <vector>
+#include <map>
+#include <string>
+#include <sstream>
 using namespace std;
 
 /*
@@ -9,14 +12,60 @@ using namespace std;
 class Vertex
 {
 public:
-  unsigned x_coord, y_coord;
+  unsigned int x_coord, y_coord;
 
+  // default constructor
   Vertex() {}
 
+  // parameterized constructor
   Vertex(const unsigned int x, const unsigned int y)
   {
     x_coord = x;
     y_coord = y;
+  }
+
+  // copy constructor
+  Vertex(const Vertex & tmp)
+    { x_coord = tmp.x_coord; y_coord = tmp.y_coord;  }
+
+  // operator= (with another Vertex)
+  void operator=(const Vertex & rhs)
+    { x_coord = rhs.x_coord; y_coord = rhs.y_coord; }
+
+  // operator= (with a string)
+  void operator=(string rhs)
+  {
+    size_t pos;
+    unsigned int x, y;
+
+    pos = rhs.find(",");
+    stringstream tmp1(rhs.substr(pos + 1));
+    tmp1 >> y;
+    rhs.erase(rhs.begin() + pos, rhs.end());
+    stringstream tmp2(rhs);
+    tmp2 >> x;
+    x_coord = x;
+    y_coord = y;
+  }
+
+  // operator== (with a another Vertex
+  bool operator==(const Vertex & rhs) const
+    { return (x_coord == rhs.x_coord && y_coord == rhs.y_coord); }
+
+  // operator== (with a string) Ex. Vertex(1, 2) == "1,2"
+  bool operator==(string rhs) const
+  {
+    size_t pos;
+    unsigned int x, y;
+
+    pos = rhs.find(",");
+    stringstream tmp1(rhs.substr(pos + 1));
+    tmp1 >> y;
+    rhs.erase(rhs.begin() + pos, rhs.end());
+    stringstream tmp2(rhs);
+    tmp2 >> x;
+
+    return (x_coord == x && y_coord == y);
   }
 };
 
@@ -49,6 +98,9 @@ public:
   bool operator>(const Edge & rhs) const
     { return weight > rhs.weight; }
 
+  bool operator<=(const Edge & rhs) const
+    { return weight <= rhs.weight; }
+
   /*
   =========================
   ----------PRINT----------
@@ -72,6 +124,18 @@ public:
   }
 };
 
+/*
+========================================================
+--------------------ADJACENCY MATRIX--------------------
+======================================================== */
+/*
+class AdjacencyMatrix
+{
+  vector<vector<int> > graph;
+  int num_vertices;
+
+  AdjacencyMatrix(const int vertices) */
+  
 /*
 ==================================
 ----------IS TRANSPARENT----------
@@ -113,6 +177,7 @@ bool is_vertex(World graph, const unsigned int x_coord, const unsigned int y_coo
 vector<Vertex> find_vertices(World & graph)
 {
   vector<Vertex> vertices;
+  unsigned int counter = 0;
 
   // runs through graph and pushes vertices into a vector
   for(unsigned int y = 1; y <= graph.WORLD_LENGTH; y++)
@@ -147,9 +212,10 @@ void place_vertices(World & graph)
 Edge find_path(World & graph, const unsigned int x_coord, const unsigned int y_coord, const bool positive, const bool x_direction)
 {
   unsigned int tmp = x_direction ? x_coord : y_coord;
-  bool loop = true;
+  unsigned int x = x_coord, y = y_coord;
+  unsigned int weight, weight_to_teleport = 0;
   char move;
-  unsigned int weight;
+  bool loop = true;
   Edge empty;
 
   
@@ -157,21 +223,35 @@ Edge find_path(World & graph, const unsigned int x_coord, const unsigned int y_c
   {
     tmp += positive ? 1 : -1;
     // if another vertex is found in the x direction
-    if(x_direction && graph.map[y_coord][tmp] == VERTEX)
+    if(x_direction && graph.map[y][tmp] == VERTEX)
     {
       move = positive ? 'd' : 'a';
-      weight = positive ? tmp - x_coord : x_coord - tmp;
+      weight = tmp > x ? tmp - x + weight_to_teleport : x - tmp + weight_to_teleport;
       return Edge(Vertex(x_coord, y_coord), Vertex(tmp, y_coord), weight, move);
     }
     // if another vertex is found in the y direction
-    else if(!x_direction && graph.map[tmp][x_coord] == VERTEX)
+    else if(!x_direction && graph.map[tmp][x] == VERTEX)
     {
       move = positive ? 's' : 'w';
-      weight = positive ? tmp - y_coord : y_coord - tmp;
+      weight = tmp > y ? tmp - y + weight_to_teleport : y - tmp + weight_to_teleport;
       return Edge(Vertex(x_coord, y_coord), Vertex(x_coord, tmp), weight, move);
     }
+    // if a teleport path thing is reached in x direction
+    else if((x_direction && tmp > graph.WORLD_WIDTH) || (x_direction && tmp < 2))
+    {
+      weight_to_teleport = tmp > x_coord ? tmp - x_coord : x_coord - tmp;
+      tmp = tmp < 2 ? graph.WORLD_WIDTH : 1;
+      x = tmp;
+    }
+    // if a teleport path thing is reached in y direction
+    else if((!x_direction && tmp > graph.WORLD_LENGTH) || (!x_direction && tmp < 2))
+    {
+      weight_to_teleport = tmp > y_coord ? tmp - y_coord : y_coord - tmp;
+      tmp = tmp < 2 ? graph.WORLD_LENGTH : 1;
+      y = tmp;
+    }
     // if an impass is reached
-    else if(x_direction && !is_transparent(graph.map[y_coord][tmp]) || !(x_direction || is_transparent(graph.map[tmp][x_coord])))
+    else if(x_direction && !is_transparent(graph.map[y][tmp]) || !(x_direction || is_transparent(graph.map[tmp][x])))
       return empty;
   }
 }
@@ -219,20 +299,22 @@ vector<Edge> find_edges(World & graph)
     }
   }
 
-  for(unsigned int i = 0; i < edges.size(); i++)
-    edges[i].print();
-
   return edges;
 }
 
+/*
 int main()
 {
-  World graph("level.txt");
-  vector<Edge> paths;
+  World graph("../level.txt");
+  vector<Edge> edges;
 
   place_vertices(graph);
   graph.print();
-  find_edges(graph);
+  edges = find_edges(graph);
+
+  cout << edges.size() << " EDGES FOUND IN MAP" << endl;
+  for(unsigned int i = 0; i < edges.size(); i++)
+    edges[i].print();
 
   return 0;
-}
+} */

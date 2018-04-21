@@ -4,33 +4,34 @@
 ==================================================
 --------------------PATH TABLE--------------------
 ================================================== */
+/*
 class PathTable
 {
 public:
-  map<Vertex, map<Vertex, vector<Edge> > > table;
+  map<Vertex, map<Vertex, vector<char> > > table;
 
-};
+};*/
 
 /*
-============================================
---------------------NODE--------------------
-============================================ */
-class Node
+==============================================
+--------------------L NODE--------------------
+============================================== */
+class L_Node
 {
 public:
   Vertex vertex;
   unsigned int label;
 
-  Node(const Vertex v, const unsigned int l) : vertex(v), label(l) {}
+  L_Node(const Vertex v, const unsigned int l) : vertex(v), label(l) {}
 
 // flipped the signs in order to sort from least to greatest with my heapsort
-  bool operator<(const Node & rhs) const
+  bool operator<(const L_Node & rhs) const
     { return label > rhs.label; }
 
-  bool operator>(const Node & rhs) const
+  bool operator>(const L_Node & rhs) const
     { return label < rhs.label; }
 
-  bool operator<=(const Node & rhs) const
+  bool operator<=(const L_Node & rhs) const
     { return label >= rhs.label; }
 };
 
@@ -150,23 +151,23 @@ vector<unsigned int> Dijkstra(const vector<Vertex> & vertices, const vector<Edge
   // vector<Edge> solution;
   vector<unsigned int> distance;
   vector<Vertex> predecessor;
-  vector<Node> labels;
+  vector<L_Node> labels;
 
   distance.push_back(0);
-  labels.push_back(Node(vertices[source], 0));\
+  labels.push_back(L_Node(vertices[source], 0));\
   predecessor.push_back(-1);
   // Invariant: the number of vertices in the graph is greater than 0
-  assert(graph.num_vertices > 0);
+  //assert(graph.num_vertices > 0);
   for(int i = 1; i < vertices.size(); i++)
   {
     distance.push_back(-1);
-    labels.push_back(Node(Vertex(vertices[i], -1));
+    labels.push_back(L_Node(Vertex(vertices[i], -1));
     predecessor.push_back(-1);
   }
   // Invariant: distance, labels and predecessor are not empty
-  assert(distance.size() != 0);
-  assert(labels.size() != 0);
-  assert(predecessor.size() != 0);
+  //assert(distance.size() != 0);
+  //assert(labels.size() != 0);
+  //assert(predecessor.size() != 0);
 
   for(int i = 0; i < labels.size(); i++)
   {
@@ -282,20 +283,20 @@ int main()
   vector<Edge> edges;
   unsigned int size = 0;
 
-  Vertex tmp1(12, 31);
-  Vertex tmp2(tmp1);
-  cout << "x_coord: " << tmp2.x_coord << "; y_coord: " << tmp2.y_coord << endl;
-/*
+  //Vertex tmp1(12, 31);
+  //Vertex tmp2(tmp1);
+  //cout << "x_coord: " << tmp2.x_coord << "; y_coord: " << tmp2.y_coord << endl;
+
   place_vertices(graph);
   edges = find_edges(graph);
   size = edges.size();
 
-  vertices = find_vertices(graph);
+  //vertices = find_vertices(graph);
 
   cout << "SIZE: " << size << endl;
   HeapSort(edges, size);
   for(unsigned int i = 0; i < edges.size(); i++)
-    edges[i].print(); */
+    edges[i].print();
 
   return 0;
 }

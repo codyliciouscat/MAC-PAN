@@ -48,6 +48,10 @@ public:
     y_coord = y;
   }
 
+  // operator<
+  bool operator<(const Vertex & rhs) const
+    { return x_coord < rhs.x_coord; }
+
   // operator== (with a another Vertex
   bool operator==(const Vertex & rhs) const
     { return (x_coord == rhs.x_coord && y_coord == rhs.y_coord); }
@@ -125,16 +129,35 @@ public:
 };
 
 /*
+==============================================
+--------------------M NODE--------------------
+============================================== */
+class M_Node
+{
+  unsigned int distance;
+  char move;
+
+  M_Node(const unsigned int d, const char m) : distance(d), move(m) {}
+};
+
+/*
 ========================================================
 --------------------ADJACENCY MATRIX--------------------
 ======================================================== */
-/*
 class AdjacencyMatrix
 {
-  vector<vector<int> > graph;
-  int num_vertices;
+  map<Vertex, map<Vertex, char> > graph;
+  unsigned int num_vertices;
 
-  AdjacencyMatrix(const int vertices) */
+  AdjacencyMatrix(const vector<Edge> edges)
+  {
+    for(int i = 0; i < edges.size(); i++)
+    {
+      graph[edges[i].start_vertex][edges[i].stop_vertex] = edges[i].weight;
+    }
+  }
+};
+
   
 /*
 ==================================

@@ -18,11 +18,7 @@ public:
   Vertex() {}
 
   // parameterized constructor
-  Vertex(const unsigned int x, const unsigned int y)
-  {
-    x_coord = x;
-    y_coord = y;
-  }
+  Vertex(const unsigned int x, const unsigned int y) : x_coord(x), y_coord(y) {}
 
   // copy constructor
   Vertex(const Vertex & tmp)
@@ -50,7 +46,7 @@ public:
 
   // operator<
   bool operator<(const Vertex & rhs) const
-    { return x_coord < rhs.x_coord; }
+    { return (x_coord + y_coord * 100 < rhs.x_coord + rhs.y_coord * 100); }
 
   // operator== (with a another Vertex
   bool operator==(const Vertex & rhs) const
@@ -70,6 +66,14 @@ public:
     tmp2 >> x;
 
     return (x_coord == x && y_coord == y);
+  }
+
+  // print
+  void print(/*const*/ bool next_line = 0) const
+  {
+    cout << "(" << x_coord << ", " << y_coord << ")";
+    if(next_line)
+      cout << endl;
   }
 };
 
@@ -158,7 +162,24 @@ class AdjacencyMatrix
   }
 };
 
-  
+/*
+==========================
+----------MEMBER----------
+========================== */
+bool member(const vector<Vertex> vertices, const Vertex v)
+{
+  bool is_member = false;
+  for(int i = 0; i < vertices.size(); i++)
+  {
+    if(vertices[i] == v)
+    {
+      is_member = true;
+      break;
+    }
+  }
+  return is_member;
+}
+
 /*
 ==================================
 ----------IS TRANSPARENT----------
@@ -197,9 +218,9 @@ bool is_vertex(World graph, const unsigned int x_coord, const unsigned int y_coo
 =================================
 ----------FIND VERTICES----------
 ================================= */
-map<unsigned int, Vertex> find_vertices(World & graph)
+vector<Vertex> find_vertices(World & graph)
 {
-  map<unsigned int, Vertex> vertices;
+  vector<Vertex> vertices;
   unsigned int counter = 0;
 
   // runs through graph and pushes vertices into a vector
@@ -209,7 +230,7 @@ map<unsigned int, Vertex> find_vertices(World & graph)
     {
       if(is_vertex(graph, x, y))
       {
-        vertices[counter] = Vertex(x, y);
+        vertices.push_back(Vertex(x, y));
         counter++;
       }
     }
@@ -222,20 +243,20 @@ map<unsigned int, Vertex> find_vertices(World & graph)
 ==================================
 ----------PLACE VERTICES----------
 ================================== */
-void place_vertices(World & graph)
+void place_vertices(World & graph, const vector<Vertex> vertices)
 {
-  map<unsigned int, Vertex> vertices;
+  //vector<Vertex> vertices;
   
-  vertices = find_vertices(graph);
+  //vertices = find_vertices(graph);
   for(unsigned int i = 0; i < vertices.size(); i++)
     graph.insert(vertices[i].x_coord, vertices[i].y_coord, VERTEX);
 }
 
 /*
-=============================
-----------FIND PATH----------
-============================= */
-Edge find_path(World & graph, const unsigned int x_coord, const unsigned int y_coord, const bool positive, const bool x_direction)
+===============================
+----------DETECT PATH----------
+=============================== */
+Edge detect_path(World & graph, const unsigned int x_coord, const unsigned int y_coord, const bool positive, const bool x_direction)
 {
   unsigned int tmp = x_direction ? x_coord : y_coord;
   unsigned int x = x_coord, y = y_coord;
@@ -286,46 +307,109 @@ Edge find_path(World & graph, const unsigned int x_coord, const unsigned int y_c
 ==============================
 ----------FIND EDGES----------
 ============================== */
-vector<Edge> find_edges(World & graph)
+// changed from pass by reference
+vector<Edge> find_edges(World graph)
 {
-  map<unsigned int, Vertex> vertices;
+  vector<Vertex> vertices;
   vector<Edge> edges;
   Edge tmp;
 
   vertices = find_vertices(graph);
+  place_vertices(graph, vertices);
   for(unsigned int i = 0; i < vertices.size(); i++)
   {
     // downward path from vertex
     if(is_transparent(graph.map[vertices[i].y_coord + 1][vertices[i].x_coord]))
     {
-      tmp = find_path(graph, vertices[i].x_coord, vertices[i].y_coord, true, false);
+      tmp = detect_path(graph, vertices[i].x_coord, vertices[i].y_coord, true, false);
       if(tmp.empty == false)
         edges.push_back(tmp);
     }
     // upward path from vertex
     if(is_transparent(graph.map[vertices[i].y_coord - 1][vertices[i].x_coord]))
     {
-      tmp = find_path(graph, vertices[i].x_coord, vertices[i].y_coord, false, false);
+      tmp = detect_path(graph, vertices[i].x_coord, vertices[i].y_coord, false, false);
       if(tmp.empty == false)
         edges.push_back(tmp);
     }
     // right path from vertex
     if(is_transparent(graph.map[vertices[i].y_coord][vertices[i].x_coord + 1]))
     {
-      tmp = find_path(graph, vertices[i].x_coord, vertices[i].y_coord, true, true);
+      tmp = detect_path(graph, vertices[i].x_coord, vertices[i].y_coord, true, true);
       if(tmp.empty == false)
         edges.push_back(tmp);
     }
     // left path from vertex
     if(is_transparent(graph.map[vertices[i].y_coord][vertices[i].x_coord - 1]))
     {
-      tmp = find_path(graph, vertices[i].x_coord, vertices[i].y_coord, false, true);
+      tmp = detect_path(graph, vertices[i].x_coord, vertices[i].y_coord, false, true);
       if(tmp.empty == false)
         edges.push_back(tmp);
     }
   }
 
   return edges;
+}
+
+/*
+=================================================
+--------------------NEIGHBORS--------------------
+================================================= */
+vector<Vertex> neighbors(const Vertex reference, vector<Edge> edges)
+{
+  vector<Vertex> neighbors;
+  for(int i = 0; i < edges.size(); i++)
+  {
+    if(edges[i].start_vertex == reference)
+      neighbors.push_back(edges[i].stop_vertex);
+  }
+  return neighbors;
+}
+
+/*
+================================================
+--------------------DISTANCE--------------------
+================================================ */
+// only works if start and stop vertices are neighbors
+unsigned int distance(const Vertex start, const Vertex stop, World & graph)
+{
+  // if(!is_transparent(graph[start.x_coord][1]) || !is_transparent(graph[1][start.y_coord]))
+  unsigned int dist;
+  
+  // if there is a teleport in the x-direction between vertices
+  if((is_transparent(graph.map[start.y_coord][1]) && is_transparent(graph.map[stop.y_coord][graph.WORLD_WIDTH])) ||
+     (is_transparent(graph.map[start.y_coord][graph.WORLD_WIDTH]) && is_transparent(graph.map[stop.y_coord][1])))
+  {
+    dist = start.x_coord < stop.x_coord ?
+      (start.x_coord - 1) + (graph.WORLD_WIDTH - stop.x_coord) : 
+      (stop.x_coord - 1) + (graph.WORLD_WIDTH - start.x_coord);
+  }
+  // if there is a teleport in the y-direction between vertices
+  else if((is_transparent(graph.map[1][start.x_coord]) && is_transparent(graph.map[graph.WORLD_LENGTH][stop.x_coord])) ||
+          (is_transparent(graph.map[graph.WORLD_LENGTH][start.x_coord]) && is_transparent(graph.map[1][stop.x_coord])))
+  {  
+    dist = start.y_coord < stop.y_coord ?
+      (start.y_coord - 1) + (graph.WORLD_LENGTH - stop.y_coord) : 
+      (stop.y_coord - 1) + (graph.WORLD_WIDTH - start.y_coord);
+  }
+  // if there is no teleport between vertices
+  else
+  {
+    if(start.x_coord == stop.x_coord)
+    {
+      dist = start.y_coord > stop.y_coord ? start.y_coord - stop.y_coord : stop.y_coord - start.y_coord;
+    }
+    else if(start.y_coord == stop.y_coord)
+    {
+      dist = start.x_coord > stop.x_coord ? start.x_coord - stop.x_coord : stop.x_coord - start.x_coord;
+    }
+    else
+    {
+      cout << "ERROR" << endl;
+      return -1;
+    }
+  }
+  return dist;
 }
 
 /*

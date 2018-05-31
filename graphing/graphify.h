@@ -1,8 +1,4 @@
 #include "../map.h"
-#include <vector>
-#include <map>
-#include <string>
-#include <sstream>
 using namespace std;
 
 /*
@@ -134,32 +130,28 @@ public:
 
 /*
 ==============================================
---------------------M NODE--------------------
+--------------------NODE--------------------
 ============================================== */
-class M_Node
+class Node
 {
-  unsigned int distance;
+  Vertex location;
   char move;
 
-  M_Node(const unsigned int d, const char m) : distance(d), move(m) {}
+  Node(const Vertex v, const char m) : location(v), move(m) {}
 };
 
 /*
-========================================================
---------------------ADJACENCY MATRIX--------------------
-======================================================== */
-class AdjacencyMatrix
+==================================================
+--------------------PATH TABLE--------------------
+================================================== */
+class PathTable
 {
-  map<Vertex, map<Vertex, char> > graph;
-  unsigned int num_vertices;
+public:
+  map<Vertex, map<Vertex, vector<Node> > > table;
 
-  AdjacencyMatrix(const vector<Edge> edges)
-  {
-    for(int i = 0; i < edges.size(); i++)
-    {
-      graph[edges[i].start_vertex][edges[i].stop_vertex] = edges[i].weight;
-    }
-  }
+  PathTable(); // default constructor
+
+  PathTable(const string table_file); // parameterized constructor
 };
 
 /*

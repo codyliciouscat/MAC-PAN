@@ -1,6 +1,8 @@
 #include "../map.h"
 using namespace std;
 
+// need to create a function that finds lenght and width
+// include length and width in file after conversion
 int main(int argc, char** argv)
 {
   ifstream fin;

@@ -1,6 +1,6 @@
 #ifndef CHARACTER_H
 #define CHARACTER_H
-#include "map.h"
+#include "graphing/graphify.h"
 
 /*
 =================================================

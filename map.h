@@ -4,6 +4,8 @@
 #include "/root/GitHub/Cody-Caleb-Collab/Ampersand-Alpha/utility/terminalmanager.h"
 #include "/root/GitHub/Cody-Caleb-Collab/Ampersand-Alpha/utility/timemanager.h"
 #include <iostream>
+#include <map>
+#include <vector>
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -30,13 +32,18 @@ using namespace std;
   const string EWAY = term::background_color(0, 0, 0) + term::foreground_color(0, 0, 153) + "╬" + term::RESET;
   const string POINT = term::background_color(0, 0, 0) + "." + term::RESET;
   const string BACKGROUND = term::background_color(0, 0, 0) + term::foreground_color(0, 0, 0) + BLOCK + term::RESET;
-  const string BLANK_SPACE = term::foreground_color(0, 0, 0) + BLOCK + term::RESET;
+  const string BLANK_SPACE = term::background_color(0, 0, 0) + term::foreground_color(0, 0, 0) + /*BLOCK*/ "▓" /*"0"*/ + term::RESET;
   const string POWER = term::background_color(0, 0, 0) + /*"ø"*/"●" + term::RESET;
   const string VERTEX = term::background_color(0, 0, 0) + term::foreground_color(0, 255, 0) + "●" + term::RESET;
   const string OPEN = term::background_color(0, 0, 0) + term::foreground_color(255, 0, 0) + "-" + term::RESET;
 
 bool is_solid (const string & block);
 
+
+/*
+=============================================
+--------------------WORLD--------------------
+============================================= */
 class World
 {
 public:

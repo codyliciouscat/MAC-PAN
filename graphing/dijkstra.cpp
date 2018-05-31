@@ -5,31 +5,18 @@
 // need find neighbor with shortest distance using distance function and sort
 
 /*
-==================================================
---------------------PATH TABLE--------------------
-================================================== */
-class PathTable
-{
-public:
-  map<Vertex, map<Vertex, vector<char> > > table;
-
-};
-
-/*
 ================================================
 --------------------DIJKSTRA--------------------
 ================================================ */
 
-vector<char> dijkstra(const Vertex source, const vector<Edge> edges, const vector<Vertex> vertices, World & graph)
+PathTable dijkstra(const Vertex source, const vector<Edge> edges, const vector<Vertex> vertices, World & graph)
 {
   map<Vertex, unsigned int> dist;
   map<Vertex, Vertex> predecessor;
   vector<Vertex> visited;
-  //vector<Vertex> neighbors;
-  vector<char> stuff;
+  vector<char> input;
   unsigned int counter = 0;
 
-  //unvisited = verticess
   // sets distance to all vertices equal to -1
   // sets predecessor to all vertices as undefined
   for(int i = 0; i < vertices.size(); i++)
@@ -39,13 +26,11 @@ vector<char> dijkstra(const Vertex source, const vector<Edge> edges, const vecto
   }
   dist[source] = 0;
   visited.push_back(source);
+
   // loops until all nodes have been visited
-  //  while(visited.size() < vertices.size())
   while(counter < vertices.size() - 1)
   {
     Vertex tmp = visited[counter];
-    cout << "VERTEX USED: ";
-    tmp.print(true);
     vector<Vertex> neigh = neighbors(tmp, edges);
 
     for(int i = 0; i < neigh.size(); i++)
@@ -55,48 +40,21 @@ vector<char> dijkstra(const Vertex source, const vector<Edge> edges, const vecto
     }
     for(int n = 0; n < neigh.size(); n++)
     {
-      tmp.print();
-      cout << " TO ";
-      neigh[n].print();
-      cout << " = " << distance(tmp, neigh[n], graph) << endl;
       unsigned int sum = distance(tmp, neigh[n], graph) + (dist[tmp] == -1 ? 0 : dist[tmp]);
-      cout << "SUM: " << sum << "; DISTANCE: " << dist[neigh[n]] << endl;
       if(sum < dist[neigh[n]])
       {
-        cout << "SUM < DISTANCE" << endl;
         dist[neigh[n]] = sum;
         predecessor[neigh[n]] = tmp;
       }
     }
     counter++;
-    
-  cout << "DISTANCE"
-       << "==========" << endl;
-  map<Vertex, unsigned int>::iterator ti;
-  for(ti = dist.begin(); ti != dist.end(); ti++)
-  {
-    cout << ti->second;
-    cout << " FROM ";
-    cout << "(" << ti->first.x_coord << ", " << ti->first.y_coord << ") TO ";
-    source.print();
-    cout << endl;
   }
-
-  cout << "PRECEDES"
-       << "=========" << endl;
-  map<Vertex, Vertex>::iterator it;
-  for(it = predecessor.begin(); it != predecessor.end(); it++)
-  {
-    it->second.print();
-    cout << " PRECEDES ";
-    cout << "(" << it->first.x_coord << ", " << it->first.y_coord << ")";
-    cout << endl;
-  }
+  cout << counter << endl;
   cout << endl << endl;
 
-  }
+//}
 
-  /*map<Vertex, Vertex>::iterator it;
+ /* map<Vertex, Vertex>::iterator it;
   cout << "PREDECESSOR SIZE: " << predecessor.size() << endl;
   for(it = predecessor.begin(); it != predecessor.end(); it++)
   {
@@ -115,7 +73,45 @@ vector<char> dijkstra(const Vertex source, const vector<Edge> edges, const vecto
     source.print();
     cout << endl;
   }*/
-  return stuff;
+  return input;
+}
+
+/*
+===================================================
+--------------------CREATE PATH--------------------
+=================================================== */
+void create_path(const Vertex source, const Vertex to, PathTable path_table, const map<Vertex, Vertex> & precedes)
+{
+  // create find nearest vertex function for character
+  
+  vector<Node> path;
+  char input;
+  
+  if(source == to)
+    return;
+  else if(precedes[to] == source)
+  {
+    if(source.x_coord == to.x_coord)
+      input = source.y_coord < to.y_coord ? s : w;
+    else if(source.y_coord == to.y_coord)
+      input = source.x_coord < to.x_coord ? d : a;
+    path.push_back(Node(source, input));
+  }
+  else
+  {
+    if(path_table.table[source][to].size() == 0)
+      create_path(source, precedes[to], path_table, precedes);
+    path = path_table.table[source][precedes[to]];
+     
+    if(source.x_coord == to.x_coord)
+      input = source.y_coord < to.y_coord ? s : w;
+    else if(source.y_coord == to.y_coord)
+      input = source.x_coord < to.x_coord ? d : a;
+    path.push_back(Node(source, input));
+  }
+  path_table.table[source][to] = input;
+
+  return;
 }
 
 int main()
@@ -126,6 +122,7 @@ int main()
   Vertex v = Vertex(8, 6);
 
   edges = find_edges(graph);
+  place_vertices(graph, vertices);
   graph.print();
 
   cout << "VERTICES: " << vertices.size() << endl;

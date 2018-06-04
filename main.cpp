@@ -1,4 +1,4 @@
-#include "character.h"
+#include "pacman.h"
 #include "/root/GitHub/Cody-Caleb-Collab/Ampersand-Alpha/utility/inputmanager.h"
 //#include "print.h"
 using namespace std;
@@ -7,7 +7,7 @@ using namespace std;
 int main()
 {
   World fuck("level.txt");
-  Character pacman("C", term::foreground_color(255, 255, 0), term::background_color(0, 0, 0), 18, 19, 5);
+  Pacman pacman("C", term::foreground_color(255, 255, 0), term::background_color(0, 0, 0), 18, 19, 5);
   TimeManager time;
   InputManager input;
   double stop_time = 0, start_time = 0;

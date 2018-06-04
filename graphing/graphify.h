@@ -106,9 +106,9 @@ public:
     { return weight <= rhs.weight; }
 
   /*
-  =========================
-  ----------PRINT----------
-  ========================= */
+  -------------------------
+            PRINT          
+  ------------------------- */
   void print()
   {
     cout << "(" << start_vertex.x_coord << ", " << start_vertex.y_coord << ") (" 
@@ -116,9 +116,9 @@ public:
   }
 
   /*
-  ===========================
-  ----------F PRINT----------
-  =========================== */
+  ---------------------------
+            F PRINT
+  --------------------------- */
   void f_print(const string & o_file)
   {
     ofstream fout;
@@ -129,15 +129,26 @@ public:
 };
 
 /*
-==============================================
+============================================
 --------------------NODE--------------------
-============================================== */
+============================================ */
 class Node
 {
+public:
   Vertex location;
   char move;
 
   Node(const Vertex v, const char m) : location(v), move(m) {}
+
+  void operator=(const Node rhs)
+    { location = rhs.location; move = rhs.move; }
+
+  void print() const
+  {
+    cout << "<";
+    location.print();
+    cout << ", " << move << ">";
+  }
 };
 
 /*
@@ -149,15 +160,69 @@ class PathTable
 public:
   map<Vertex, map<Vertex, vector<Node> > > table;
 
-  PathTable(); // default constructor
+  PathTable() {} // default constructor
 
   PathTable(const string table_file); // parameterized constructor
+
+  void print()
+  {
+    map<Vertex, map<Vertex, vector<Node> > >::iterator from;
+
+    for(from = table.begin(); from != table.end(); from++)
+    {
+      map<Vertex, vector<Node > >::iterator to;
+
+      for(to = from->second.begin(); to != from->second.end(); to++)
+      {
+        cout << endl;
+        from->first.print();
+        cout << " TO ";
+        to->first.print();
+        cout << endl
+             << "{";
+        for(int i = 0; i < to->second.size(); i++)
+        {
+          to->second[i].print();
+          if(i != to->second.size() - 1)
+            cout << ", ";
+        }
+        cout << "}" << endl;
+      }
+    }
+  }
+
+  // prints in form of start_x start _y stop_x stop_y vector_size vector
+  void f_print(const string o_file)
+  {
+    ofstream fout;
+
+    fout.open(o_file.c_str());
+    map<Vertex, map<Vertex, vector<Node> > >::iterator from;
+
+    for(from = table.begin(); from != table.end(); from++)
+    {
+      map<Vertex, vector<Node> >::iterator to;
+
+      for(to = from->second.begin(); to != from->second.end(); to++)
+      {
+        fout << from->first.x_coord << " " << from->first.y_coord << " "
+             << to->first.x_coord << " " << to->first.y_coord << " " << to->second.size() << endl;
+        for(int i = 0; i < to->second.size(); i++)
+        {
+          fout << to->second[i].location.x_coord << " "
+               << to->second[i].location.y_coord << " "
+               << to->second[i].move << endl;
+        }
+      }
+    }
+    fout.close();
+  }
 };
 
 /*
-==========================
-----------MEMBER----------
-========================== */
+--------------------------
+          MEMBER          
+-------------------------- */
 bool member(const vector<Vertex> vertices, const Vertex v)
 {
   bool is_member = false;
@@ -173,23 +238,23 @@ bool member(const vector<Vertex> vertices, const Vertex v)
 }
 
 /*
-==================================
-----------IS TRANSPARENT----------
-================================== */
+----------------------------------
+          IS TRANSPARENT          
+---------------------------------- */
 bool is_transparent(const string & cell)
   { return (cell == BACKGROUND || cell == POWER || cell == POINT || cell == VERTEX); }
 
 /*
-=============================
-----------IS CORNER----------
-============================= */
+-----------------------------
+          IS CORNER          
+----------------------------- */
 bool is_corner(const string & cell)
   { return (cell == lCEILING_CORNER || cell == rCEILING_CORNER || cell == lFLOOR_CORNER || cell == rFLOOR_CORNER); }
 
 /*
-=============================
-----------IS VERTEX----------
-============================= */
+-----------------------------
+          IS VERTEX          
+----------------------------- */
 bool is_vertex(World graph, const unsigned int x_coord, const unsigned int y_coord)
 {
   if(is_transparent(graph.map[y_coord][x_coord]))
@@ -207,9 +272,9 @@ bool is_vertex(World graph, const unsigned int x_coord, const unsigned int y_coo
 }
 
 /*
-=================================
-----------FIND VERTICES----------
-================================= */
+---------------------------------
+          FIND VERTICES          
+--------------------------------- */
 vector<Vertex> find_vertices(World & graph)
 {
   vector<Vertex> vertices;
@@ -232,9 +297,9 @@ vector<Vertex> find_vertices(World & graph)
 }
 
 /*
-==================================
-----------PLACE VERTICES----------
-================================== */
+----------------------------------
+          PLACE VERTICES          
+---------------------------------- */
 void place_vertices(World & graph, const vector<Vertex> vertices)
 {
   //vector<Vertex> vertices;
@@ -245,9 +310,9 @@ void place_vertices(World & graph, const vector<Vertex> vertices)
 }
 
 /*
-===============================
-----------DETECT PATH----------
-=============================== */
+-------------------------------
+          DETECT PATH          
+------------------------------- */
 Edge detect_path(World & graph, const unsigned int x_coord, const unsigned int y_coord, const bool positive, const bool x_direction)
 {
   unsigned int tmp = x_direction ? x_coord : y_coord;
@@ -296,9 +361,9 @@ Edge detect_path(World & graph, const unsigned int x_coord, const unsigned int y
 }
 
 /*
-==============================
-----------FIND EDGES----------
-============================== */
+------------------------------
+          FIND EDGES          
+------------------------------ */
 // changed from pass by reference
 vector<Edge> find_edges(World graph)
 {
@@ -344,9 +409,9 @@ vector<Edge> find_edges(World graph)
 }
 
 /*
-=================================================
---------------------NEIGHBORS--------------------
-================================================= */
+-----------------------------
+          NEIGHBORS          
+----------------------------- */
 vector<Vertex> neighbors(const Vertex reference, vector<Edge> edges)
 {
   vector<Vertex> neighbors;
@@ -359,9 +424,9 @@ vector<Vertex> neighbors(const Vertex reference, vector<Edge> edges)
 }
 
 /*
-================================================
---------------------DISTANCE--------------------
-================================================ */
+----------------------------
+          DISTANCE          
+---------------------------- */
 // only works if start and stop vertices are neighbors
 unsigned int distance(const Vertex start, const Vertex stop, World & graph)
 {

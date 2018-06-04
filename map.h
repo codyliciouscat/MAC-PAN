@@ -32,7 +32,7 @@ using namespace std;
   const string EWAY = term::background_color(0, 0, 0) + term::foreground_color(0, 0, 153) + "╬" + term::RESET;
   const string POINT = term::background_color(0, 0, 0) + "." + term::RESET;
   const string BACKGROUND = term::background_color(0, 0, 0) + term::foreground_color(0, 0, 0) + BLOCK + term::RESET;
-  const string BLANK_SPACE = term::background_color(0, 0, 0) + term::foreground_color(0, 0, 0) + /*BLOCK*/ "▓" /*"0"*/ + term::RESET;
+  const string BLANK_SPACE = term::background_color(0, 0, 0) + term::foreground_color(0, 0, 0) + /*BLOCK*/ /*"▓"*/ "0" + term::RESET;
   const string POWER = term::background_color(0, 0, 0) + /*"ø"*/"●" + term::RESET;
   const string VERTEX = term::background_color(0, 0, 0) + term::foreground_color(0, 255, 0) + "●" + term::RESET;
   const string OPEN = term::background_color(0, 0, 0) + term::foreground_color(255, 0, 0) + "-" + term::RESET;

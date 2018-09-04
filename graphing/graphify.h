@@ -162,7 +162,29 @@ public:
 
   PathTable() {} // default constructor
 
-  PathTable(const string table_file); // parameterized constructor
+  PathTable(const string table_file) // parameterized constructor
+  {
+    ifstream fin;
+    unsigned int start_x, start_y, stop_x, stop_y;
+    unsigned int num_moves, input_x, input_y;
+    char input_move;
+
+    fin.open(table_file.c_str());
+    while(fin >> start_x)
+    {
+      vector<Node> path_sequence;
+      fin >> start_y>> stop_x>> stop_y
+          >> num_moves;
+      for(int i = 0; i < num_moves; i++)
+      {
+        fin >> input_x >> input_y >> input_move;
+        //Node(Vertex(input_x, input_y), input_move).print();
+        path_sequence.push_back(Node(Vertex(input_x, input_y), input_move));
+      }
+
+      table[Vertex(start_x, start_y)][Vertex(stop_x, stop_y)] = path_sequence;
+    }
+  }
 
   void print()
   {

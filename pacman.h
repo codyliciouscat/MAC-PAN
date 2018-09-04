@@ -27,13 +27,12 @@ public:
     y_coord = y;
     speed = vroom;
     x_velocity = speed;
-    y_velocity = 0;;
+    y_velocity = 0;
     life = true;
     juiced = false;
     covered = BACKGROUND;
   }
 
-/*
 // GET X COORDINATE:
   int get_x_coord()
     {return (int)x_coord;}
@@ -41,7 +40,6 @@ public:
 // GET Y COORDINATE:
   int get_y_coord()
     {return (int)y_coord;}
-*/
 
 // WAKA
   void waka()
